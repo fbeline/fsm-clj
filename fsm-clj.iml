@@ -19,8 +19,10 @@
     <orderEntry type="library" name="Leiningen: joda-time:2.3" level="project" />
     <orderEntry type="library" name="Leiningen: mvxcvi/arrangement:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: mvxcvi/puget:1.0.0" level="project" />
-    <orderEntry type="library" name="Leiningen: org.clojure/clojure:1.8.0" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/clojure:1.9.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.rrb-vector:0.0.11" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/core.specs.alpha:0.1.24" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/spec.alpha:0.1.143" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.nrepl:0.2.12" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.trace:0.7.9" level="project" />
     <orderEntry type="library" name="Leiningen: spyscope:0.1.6" level="project" />
