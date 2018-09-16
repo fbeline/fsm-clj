@@ -8,7 +8,7 @@
            :-> #(= % '->)
            :target keyword?
            :'when #(= % 'when)
-           :transition keyword?
+           :event keyword?
            :'handler #(= % 'handler)
            :handler #(-> % eval fn?))))
 
@@ -18,21 +18,39 @@
   (let [parsed (s/conform ::transition transition)]
     {:state      (:state parsed)
      :target     (:target parsed)
-     :transition (:transition parsed)
-     :handler    (-> parsed :handler eval)}))
+     :event      (:event parsed)
+     :handler    (-> parsed :handler eval (or identity))}))
+
+(defn- build-fsm-graph [transitions]
+  (group-by :state transitions))
+
+(defn- build-fsm-transitions [transitions]
+  (->> transitions
+       (group-by :state)
+       (map (fn [[k v]]
+              {k (->> v
+                      (group-by :event)
+                      (map (fn [[k v]] {k (first v)}))
+                      (into {}))}))
+       (into {})))
 
 (defmacro fsm [transitions]
-  `{:state       (-> '~transitions first parse-fsm-transition :state)
-    :transitions (map parse-fsm-transition '~transitions)})
+  `(let [transitions# (map parse-fsm-transition '~transitions)]
+     {:state       (-> transitions# first :state)
+      :transitions (build-fsm-transitions transitions#)
+      :graph       (build-fsm-graph transitions#)}))
 
 (defmacro defsm [name states]
   `(def ~name (fsm ~states)))
 
 (defn send-event [fsm event message]
-  (let [t (first (filter #(and (-> % :transition #{event}) (-> % :state #{(:state fsm)})) (:transitions fsm)))]
-    (-> t :handler (apply [message]))
-    (assoc fsm :state (or (:target t)
-                          (:state fsm)))))
+  (let [state (:state fsm)
+        event (-> fsm :transitions state event)]
+    (if event
+      (do
+        (-> event :handler (apply [message]))
+        (assoc fsm :state (:target event)))
+      fsm)))
 
 (defn force-state [fsm state]
   ;; check if state is valid
@@ -40,17 +58,8 @@
 
 (defsm foo
      [[:state-1 -> :state-2 when :event-1 handler #(println "state 1 boys" %)]
-      [:state-2 -> :state-3 when :event-2 handler #(println "here we go boys!!" %)]])
+      [:state-1 -> :state-10 when :end handler #(println "final state" %)]
+      [:state-2 -> :state-3 when :event-2 handler identity]])
 
-(send-event foo :event-1 {})
-
-;(defn payment [id value db]
-;  (let [bill (db/get id)
-;        fsm  (build-bill-fsm bill)])
-;  (send-event fsm :payment {:id 10 :amount value}))
-;
-;(defn payment-handler [message db]
-;  (db/save v db))
-;
-;(def cancel-handler [message db]
-;  (db/cancel v db))
+(-> foo
+    (send-event :end "nicee"))

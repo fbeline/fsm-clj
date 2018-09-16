@@ -7,6 +7,6 @@ pom.xml.asc
 *.class
 /.lein-*
 /.nrepl-port
-/.idea
+.idea/
 .hgignore
 .hg/
