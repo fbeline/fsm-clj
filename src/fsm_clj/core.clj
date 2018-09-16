@@ -10,21 +10,21 @@
            :'when #(= % 'when)
            :event keyword?
            :'handler #(= % 'handler)
-           :handler #(-> % eval fn?))))
+           :handler #(fn? @(-> % eval resolve)))))
 
-(defn- parse-fsm-transition [transition]
+(defn parse-fsm-transition [transition]
   (when-not (s/valid? ::transition transition)
     (throw (Exception. (s/explain ::transition transition))))
   (let [parsed (s/conform ::transition transition)]
     {:state      (:state parsed)
      :target     (:target parsed)
      :event      (:event parsed)
-     :handler    (-> parsed :handler eval (or identity))}))
+     :handler    @(-> parsed :handler eval resolve)}))
 
-(defn- build-fsm-graph [transitions]
+(defn build-fsm-graph [transitions]
   (group-by :state transitions))
 
-(defn- build-fsm-transitions [transitions]
+(defn build-fsm-transitions [transitions]
   (->> transitions
        (group-by :state)
        (map (fn [[k v]]
@@ -41,25 +41,23 @@
       :graph       (build-fsm-graph transitions#)}))
 
 (defmacro defsm [name states]
-  `(def ~name (fsm ~states)))
+  `(def ~name (fn tfsm#
+                ([acc#]
+                  (tfsm# acc# nil))
+                ([acc# initial-state#]
+                 (-> (fsm ~states)
+                     (assoc :acc acc#)
+                     (conj (when initial-state# [:state initial-state#])))))))
 
-(defn send-event [fsm event message]
-  (let [state (:state fsm)
-        event (-> fsm :transitions state event)]
-    (if event
-      (do
-        (-> event :handler (apply [message]))
-        (assoc fsm :state (:target event)))
-      fsm)))
-
-(defn force-state [fsm state]
-  ;; check if state is valid
-  (assoc fsm :state state))
-
-(defsm foo
-     [[:state-1 -> :state-2 when :event-1 handler #(println "state 1 boys" %)]
-      [:state-1 -> :state-10 when :end handler #(println "final state" %)]
-      [:state-2 -> :state-3 when :event-2 handler identity]])
-
-(-> foo
-    (send-event :end "nicee"))
+(defn send-event
+  ([fsm event]
+    (send-event fsm event nil))
+  ([fsm event message]
+   (let [state (:state fsm)
+         event (-> fsm :transitions state event)
+         handler (:handler event)]
+     (if event
+       (-> fsm
+           (update-in [:acc] #(handler % message))
+           (assoc :state (:target event)))
+       fsm))))
