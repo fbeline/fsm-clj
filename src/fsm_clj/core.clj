@@ -10,8 +10,8 @@
                    :target keyword?
                    :'when #(= % 'when)
                    :event keyword?
-                   :'handler #(= % 'handler)
-                   :handler #(fn? @(-> % eval resolve))))
+                   :'action #(= % 'action)
+                   :action #(fn? @(-> % eval resolve))))
         :t (s/and vector?
                   (s/cat
                    :state keyword?
@@ -22,13 +22,13 @@
 
 (defn parse-fsm-transition [transition]
   (let [parsed  (last (s/conform ::transition transition))
-        handler (:handler parsed)]
+        action (:action parsed)]
     {:state   (:state parsed)
      :target  (:target parsed)
      :event   (:event parsed)
-     :handler (if (nil? handler)
+     :action (if (nil? action)
                 (fn [acc _] acc)
-                @(-> handler eval resolve))}))
+                @(-> action eval resolve))}))
 
 (defn build-fsm-graph [transitions]
   (map (fn [{:keys [state target event]}]
@@ -65,7 +65,7 @@
   ([fsm event message]
    (let [state   (:state fsm)
          event   (-> fsm :transitions state event)
-         handler (:handler event)]
+         handler (:action event)]
      (if event
        (-> fsm
            (update-in [:acc] #(handler % message))
