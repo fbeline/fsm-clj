@@ -10,16 +10,20 @@
            :'when #(= % 'when)
            :event keyword?
            :'handler #(= % 'handler)
-           :handler #(fn? @(-> % eval resolve)))))
+           :handler #(or (= % 'None)
+                         (fn? @(-> % eval resolve))))))
 
 (defn parse-fsm-transition [transition]
   (when-not (s/valid? ::transition transition)
     (throw (Exception. (s/explain ::transition transition))))
-  (let [parsed (s/conform ::transition transition)]
-    {:state      (:state parsed)
-     :target     (:target parsed)
-     :event      (:event parsed)
-     :handler    @(-> parsed :handler eval resolve)}))
+  (let [parsed  (s/conform ::transition transition)
+        handler (:handler parsed)]
+       {:state   (:state parsed)
+        :target  (:target parsed)
+        :event   (:event parsed)
+        :handler (if (= handler 'None)
+                   (fn [acc _] acc)
+                   @(-> handler eval resolve))}))
 
 (defn build-fsm-graph [transitions]
   (group-by :state transitions))

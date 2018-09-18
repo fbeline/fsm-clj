@@ -9,7 +9,7 @@
  [[:green -> :yellow when :to-yellow handler `inc-handler]
   [:yellow -> :red when :to-red handler `inc-handler]
   [:red -> :green when :to-green handler `inc-handler]
-  [:red -> :yellow when :to-yellow handler `inc-handler]])
+  [:red -> :yellow when :to-yellow handler None]])
 
 (def traffic-light-fsm (traffic-light 0))
 
@@ -45,4 +45,8 @@
             :acc
             (= -1))))
 
-  )
+  (testing "None handler"
+    (is (-> (traffic-light 0 :red)
+            (fsm/send-event :to-yellow)
+            :acc
+            (= 0)))))
