@@ -34,18 +34,18 @@
     (is (-> traffic-light-fsm
             (fsm/send-event :to-yellow)
             (fsm/send-event :to-red)
-            :acc
+            :value
             (= 2))))
 
   (testing "We can pass message to transition in send-event"
     (is (-> traffic-light-fsm
             (fsm/send-event :to-yellow)
             (fsm/send-event :to-red -1)
-            :acc
+            :value
             (= -1))))
 
   (testing "Is ok to have no action defined"
     (is (-> (traffic-light 0 :red)
             (fsm/send-event :to-green)
-            :acc
+            :value
             (= 0)))))

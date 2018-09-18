@@ -56,7 +56,7 @@
                  (tfsm# acc# nil))
                 ([acc# initial-state#]
                  (-> (fsm ~states)
-                     (assoc :acc acc#)
+                     (assoc :value acc#)
                      (conj (when initial-state# [:state initial-state#])))))))
 
 (defn send-event
@@ -68,15 +68,9 @@
          handler (:action event)]
      (if event
        (-> fsm
-           (update-in [:acc] #(handler % message))
+           (update-in [:value] #(handler % message))
            (assoc :state (:target event)))
        fsm))))
 
 (defn show! [fsm]
   (-> fsm :graph dot/digraph dot/dot dot/show!))
-
-(comment
- (-> (dot/digraph [ [:green  :> :yellow {:label "foo"}] [:yellow :red] [:yellow :green] [:red :yellow] ])
-     dot/dot
-     dot/show!)
- )
