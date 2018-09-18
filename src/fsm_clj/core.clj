@@ -1,5 +1,6 @@
 (ns fsm-clj.core
-  (:require [clojure.spec.alpha :as s]))
+  (:require [clojure.spec.alpha :as s]
+            [dorothy.core :as dot]))
 
 (s/def ::transition
   (s/or :t (s/and vector?
@@ -30,7 +31,8 @@
                 @(-> handler eval resolve))}))
 
 (defn build-fsm-graph [transitions]
-  (group-by :state transitions))
+  (map (fn [{:keys [state target event]}]
+         [state :> target {:label event}]) transitions))
 
 (defn build-fsm-transitions [transitions]
   (->> transitions
@@ -69,3 +71,12 @@
            (update-in [:acc] #(handler % message))
            (assoc :state (:target event)))
        fsm))))
+
+(defn show! [fsm]
+  (-> fsm :graph dot/digraph dot/dot dot/show!))
+
+(comment
+ (-> (dot/digraph [ [:green  :> :yellow {:label "foo"}] [:yellow :red] [:yellow :green] [:red :yellow] ])
+     dot/dot
+     dot/show!)
+ )
