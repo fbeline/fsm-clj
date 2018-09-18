@@ -20,7 +20,7 @@
                    :event keyword?))))
 
 (defn parse-fsm-transition [transition]
-  (let [parsed (last (s/conform ::transition transition))
+  (let [parsed  (last (s/conform ::transition transition))
         handler (:handler parsed)]
     {:state   (:state parsed)
      :target  (:target parsed)
@@ -61,8 +61,8 @@
   ([fsm event]
    (send-event fsm event nil))
   ([fsm event message]
-   (let [state (:state fsm)
-         event (-> fsm :transitions state event)
+   (let [state   (:state fsm)
+         event   (-> fsm :transitions state event)
          handler (:handler event)]
      (if event
        (-> fsm
