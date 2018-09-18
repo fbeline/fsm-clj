@@ -6,10 +6,10 @@
   (or message (inc acc)))
 
 (fsm/defsm traffic-light
- [[:green -> :yellow when :to-yellow handler `inc-handler]
-  [:yellow -> :red when :to-red handler `inc-handler]
-  [:red -> :green when :to-green handler `inc-handler]
-  [:red -> :yellow when :to-yellow]])
+  [[:green -> :yellow when :to-yellow handler `inc-handler]
+   [:yellow -> :red when :to-red handler `inc-handler]
+   [:red -> :green when :to-green handler `inc-handler]
+   [:red -> :yellow when :to-yellow]])
 
 (def traffic-light-fsm (traffic-light 0))
 

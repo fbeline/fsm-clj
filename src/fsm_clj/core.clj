@@ -3,35 +3,34 @@
 
 (s/def ::transition
   (s/or :t (s/and vector?
-             (s/cat
-               :state keyword?
-               :-> #(= % '->)
-               :target keyword?
-               :'when #(= % 'when)
-               :event keyword?
-               :'handler #(= % 'handler)
-               :handler #(fn? @(-> % eval resolve))))
-      :t (s/and vector?
-             (s/cat
-               :state keyword?
-               :-> #(= % '->)
-               :target keyword?
-               :'when #(= % 'when)
-               :event keyword?))))
+                  (s/cat
+                   :state keyword?
+                   :-> #(= % '->)
+                   :target keyword?
+                   :'when #(= % 'when)
+                   :event keyword?
+                   :'handler #(= % 'handler)
+                   :handler #(fn? @(-> % eval resolve))))
+        :t (s/and vector?
+                  (s/cat
+                   :state keyword?
+                   :-> #(= % '->)
+                   :target keyword?
+                   :'when #(= % 'when)
+                   :event keyword?))))
 
 (defn parse-fsm-transition [transition]
   (let [parsed (last (s/conform ::transition transition))
         handler (:handler parsed)]
-   {:state   (:state parsed)
-    :target  (:target parsed)
-    :event   (:event parsed)
-    :handler (if (nil? handler)
-               (fn [acc _] acc)
-               @(-> handler eval resolve))}))
+    {:state   (:state parsed)
+     :target  (:target parsed)
+     :event   (:event parsed)
+     :handler (if (nil? handler)
+                (fn [acc _] acc)
+                @(-> handler eval resolve))}))
 
 (defn build-fsm-graph [transitions]
   (group-by :state transitions))
-
 
 (defn build-fsm-transitions [transitions]
   (->> transitions
@@ -52,7 +51,7 @@
 (defmacro defsm [name states]
   `(def ~name (fn tfsm#
                 ([acc#]
-                  (tfsm# acc# nil))
+                 (tfsm# acc# nil))
                 ([acc# initial-state#]
                  (-> (fsm ~states)
                      (assoc :acc acc#)
@@ -60,7 +59,7 @@
 
 (defn send-event
   ([fsm event]
-    (send-event fsm event nil))
+   (send-event fsm event nil))
   ([fsm event message]
    (let [state (:state fsm)
          event (-> fsm :transitions state event)
