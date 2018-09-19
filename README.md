@@ -3,11 +3,12 @@
 A Clojure library designed to create Finite State Machines.
 
 - Easy to use flat one level state machine.
-- Define a state machines that can accumulate values.
-- Transitions with guards and actions.
+- Define state machines that can accumulate values.
+- Transitions with actions.
 - Graphically visualize the resulting state machines.
 
 ## Usage
+
 
 ## Quick Start
 
@@ -43,11 +44,13 @@ You can graphically generate the State Machine (open a Swing viewer).
 ![Traffic Light Finite State Machine](doc/fsm-traffic-light.png)
 
 ## Documentation
-Refer to the [documentation](doc/documentation.md) for more detailed information.
+Refer to the [documentation](doc/documentation.md) for more detailed information as:
+
+- Transitions with actions
+- Transitions guard
+- State Machines with accumulator
 
 ## License
-
-Copyright © 2018 FIXME
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
