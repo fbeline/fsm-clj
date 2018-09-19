@@ -20,6 +20,11 @@
                    :'when #(= % 'when)
                    :event keyword?))))
 
+(defn- validate-dsl! [transition]
+  (if (s/valid? ::transition transition)
+    transition
+    (throw (Exception. (str "Invalid State Machine definition: " (s/explain-str ::transition transition))))))
+
 (defn- parse-fsm-transition [transition]
   (let [parsed  (last (s/conform ::transition transition))
         action (:action parsed)]
@@ -45,7 +50,7 @@
        (into {})))
 
 (defmacro fsm [transitions]
-  `(let [transitions# (map #'parse-fsm-transition '~transitions)]
+  `(let [transitions# (map (comp #'parse-fsm-transition #'validate-dsl!) '~transitions)]
      {:state       (-> transitions# first :state)
       :transitions (#'build-fsm-transitions transitions#)
       :graph       (#'build-fsm-graph transitions#)}))
