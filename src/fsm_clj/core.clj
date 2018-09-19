@@ -20,7 +20,7 @@
                    :'when #(= % 'when)
                    :event keyword?))))
 
-(defn parse-fsm-transition [transition]
+(defn- parse-fsm-transition [transition]
   (let [parsed  (last (s/conform ::transition transition))
         action (:action parsed)]
     {:state   (:state parsed)
@@ -30,11 +30,11 @@
                 (fn [acc _] acc)
                 @(-> action eval resolve))}))
 
-(defn build-fsm-graph [transitions]
+(defn- build-fsm-graph [transitions]
   (map (fn [{:keys [state target event]}]
          [state :> target {:label event}]) transitions))
 
-(defn build-fsm-transitions [transitions]
+(defn- build-fsm-transitions [transitions]
   (->> transitions
        (group-by :state)
        (map (fn [[k v]]
@@ -45,10 +45,10 @@
        (into {})))
 
 (defmacro fsm [transitions]
-  `(let [transitions# (map parse-fsm-transition '~transitions)]
+  `(let [transitions# (map #'parse-fsm-transition '~transitions)]
      {:state       (-> transitions# first :state)
-      :transitions (build-fsm-transitions transitions#)
-      :graph       (build-fsm-graph transitions#)}))
+      :transitions (#'build-fsm-transitions transitions#)
+      :graph       (#'build-fsm-graph transitions#)}))
 
 (defmacro defsm [name states]
   `(def ~name (fn tfsm#

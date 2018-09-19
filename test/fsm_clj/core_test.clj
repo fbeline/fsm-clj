@@ -18,7 +18,7 @@
 
   (testing "We can set an accumulator at fsm creation"
     (let [fsm (traffic-light 10)]
-      (is (-> fsm :acc (= 10)))))
+      (is (-> fsm :value (= 10)))))
 
   (testing "We can set initial state at fsm creation"
     (let [fsm (traffic-light 0 :red)]
