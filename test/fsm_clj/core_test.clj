@@ -24,6 +24,10 @@
     (let [fsm (traffic-light 0 :red)]
       (is (-> fsm :state (= :red)))))
 
+  (testing "An invalid initial state should be ignored"
+    (let [fsm (traffic-light 0 :something)]
+      (is (-> fsm :state (= :green)))))
+
   (testing "A valid transition should change the state"
     (is (-> traffic-light-fsm (fsm/send-event :to-yellow) :state (= :yellow))))
 

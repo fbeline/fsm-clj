@@ -20,6 +20,11 @@
                    :'when #(= % 'when)
                    :event keyword?))))
 
+(defn- set-state [fsm state]
+  (if ((->> fsm :transitions keys (into #{})) state)
+    (assoc fsm :state state)
+    fsm))
+
 (defn- validate-dsl! [transition]
   (if (s/valid? ::transition transition)
     transition
@@ -80,7 +85,7 @@
                 ([acc# initial-state#]
                  (-> (fsm ~transitions)
                      (assoc :value acc#)
-                     (conj (when initial-state# [:state initial-state#])))))))
+                     (#'set-state initial-state#))))))
 
 (defn send-event
   ([fsm event]
