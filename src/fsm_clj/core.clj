@@ -55,21 +55,46 @@
       :transitions (#'build-fsm-transitions transitions#)
       :graph       (#'build-fsm-graph transitions#)}))
 
-(defmacro defsm [name states]
+(defmacro defsm
+  "Define a State Machine.
+  eg.
+  (defsm foo
+    [[:state1 -> :state2 when :event1]
+     [:state2 -> state1 when :event2]])
+  foo will be a function that when called start the fsm.
+  By default, the start state will be the state of the first transition.
+
+  You can start it in 3 different ways:
+  Simplest form:
+  (foo)
+  With accumulator:
+  (foo 0)
+  Starting in a different state:
+  (foo 0 :state2)"
+  [name transitions]
   `(def ~name (fn tfsm#
                 ([]
                  (tfsm# nil nil))
                 ([acc#]
                  (tfsm# acc# nil))
                 ([acc# initial-state#]
-                 (-> (fsm ~states)
+                 (-> (fsm ~transitions)
                      (assoc :value acc#)
                      (conj (when initial-state# [:state initial-state#])))))))
 
 (defn send-event
   ([fsm event]
+   "Send an event to a state machine.
+   Parameters:
+   - fsm: State machine
+   - event: Event name. Must be a symbol."
    (send-event fsm event nil))
   ([fsm event message]
+   "Send an event with a message to a state machine.
+   Parameters:
+   - fsm: State machine
+   - event: Event name. Must be a symbol.
+   - message: Message that will passed as argument to the action of the triggered transition."
    (let [state   (:state fsm)
          event   (-> fsm :transitions state event)
          handler (:action event)]
@@ -79,5 +104,7 @@
            (assoc :state (:target event)))
        fsm))))
 
-(defn show! [fsm]
+(defn show!
+  "Graphically generate the State Machine (open a Swing viewer)."
+  [fsm]
   (-> fsm :graph dot/digraph dot/dot dot/show!))
