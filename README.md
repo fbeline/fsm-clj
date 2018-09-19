@@ -1,6 +1,6 @@
 # fsm-clj
 
-A Clojure library designed to create Finite State Machines.
+A Clojure library designed to create deterministic finite state machines.
 
 - Easy to use flat one level state machine.
 - Define state machines that can accumulate values.
@@ -46,9 +46,9 @@ You can graphically generate the State Machine (open a Swing viewer).
 ## Documentation
 Refer to the [documentation](doc/documentation.md) for more detailed information as:
 
-- Transitions with actions
-- Transitions guard
-- State Machines with accumulator
+- Transitions with actions.
+- Transitions guard.
+- State Machines with accumulator.
 
 ## License
 
