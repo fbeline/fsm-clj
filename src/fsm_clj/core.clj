@@ -57,6 +57,8 @@
 
 (defmacro defsm [name states]
   `(def ~name (fn tfsm#
+                ([]
+                 (tfsm# nil nil))
                 ([acc#]
                  (tfsm# acc# nil))
                 ([acc# initial-state#]

@@ -14,7 +14,7 @@
 
 (deftest fsm-test
   (testing "By default first transition state is the start state"
-    (is (-> traffic-light-fsm :state (= :green))))
+    (is (-> (traffic-light) :state (= :green))))
 
   (testing "We can set an accumulator at fsm creation"
     (let [fsm (traffic-light 10)]
