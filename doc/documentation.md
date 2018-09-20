@@ -1,11 +1,21 @@
 # fsm-clj documentation
  
+State machines guarantee the behaviour to be always consistent as the rules are written before the machine is started.
+With a predefined finite number of states your application moves from one state to the next based on the
+inputs that it receives.
  
-### coin-operated turnstile
+The idea is to define high level transitions and then rely on the state machine to manage state. The machine will be
+evaluated at compile time, throwing an exception in case of any parsing issue.
 
 To demonstrate how to use the library the following examples will implement a state machine for a coin-operated [turnstile](https://en.wikipedia.org/wiki/Finite-state_machine#Example:_coin-operated_turnstile).
 
 #### Defining the state machine
+
+Require the fsm-clj core name space.
+
+```clj
+(:require [fsm-clj.core :refer :all])
+```
 
 ```clj
 (defsm turnstile
@@ -41,7 +51,7 @@ we want to increment a counter.
     :value) ;; => 2
 ```
 
-#### Passing values on events
+#### Passing values to events
 
 When sending an event you can pass a message that will be injected into the action handler.
 
@@ -61,8 +71,4 @@ For example, let's say that now when a coin event is triggered we should pass th
     (send-event :coin 100)
     :value) ;; => 150
 ```
-
-
-
-
 
