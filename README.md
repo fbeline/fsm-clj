@@ -9,7 +9,6 @@ A Clojure library designed to create deterministic finite state machines.
 
 Refer to the [documentation](doc/documentation.md) for more details.
 
-
 ## Quick Start
 
 Require the fsm-clj core name space.
