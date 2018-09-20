@@ -2,23 +2,16 @@
   (:require [clojure.spec.alpha :as s]
             [dorothy.core :as dot]))
 
+(s/def ::action (s/cat :_ #{'action} :handler any?))
+(s/def ::guard (s/cat :_ #{'guard} :handler any?))
 (s/def ::transition
-  (s/or :t (s/and vector?
-                  (s/cat
-                   :state keyword?
-                   :-> #(= % '->)
-                   :target keyword?
-                   :'when #(= % 'when)
-                   :event keyword?
-                   :'action #(= % 'action)
-                   :action #(fn? @(-> % eval resolve))))
-        :t (s/and vector?
-                  (s/cat
-                   :state keyword?
-                   :-> #(= % '->)
-                   :target keyword?
-                   :'when #(= % 'when)
-                   :event keyword?))))
+ (s/cat
+  :state keyword?
+  :_ #{'->}
+  :target keyword?
+  :_ #{'when}
+  :event keyword?
+  :opts (s/* (s/alt :action ::action ::guard ::guard))))
 
 (defn- set-state [fsm state]
   (if ((->> fsm :transitions keys (into #{})) state)
@@ -31,11 +24,11 @@
     (throw (Exception. (str "Invalid State Machine definition: " (s/explain-str ::transition transition))))))
 
 (defn- parse-fsm-transition [transition]
-  (let [parsed  (last (s/conform ::transition transition))
-        action (:action parsed)]
-    {:state   (:state parsed)
-     :target  (:target parsed)
-     :event   (:event parsed)
+  (let [parsed (s/conform ::transition transition)
+        action (->> parsed :opts (into {}) :action :handler)]
+    {:state  (:state parsed)
+     :target (:target parsed)
+     :event  (:event parsed)
      :action (if (nil? action)
                 (fn [acc _] acc)
                 @(-> action eval resolve))}))
