@@ -1,13 +1,14 @@
 # fsm-clj documentation
- 
+
 State machines guarantee the behaviour to be always consistent as the rules are written before the machine is started.
-With a predefined finite number of states your application moves from one state to the next based on the
+With a predefined finite number of states, your application moves from one state to the next based on the
 inputs that it receives.
  
-The idea is to define high level transitions and then rely on the state machine to manage state. The machine will be
+The idea is to define high-level transitions and then rely on the state machine to manage state. The machine will be
 evaluated at compile time, throwing an exception in case of any parsing issue.
 
-To demonstrate how to use the library the following examples will implement a state machine for a coin-operated [turnstile](https://en.wikipedia.org/wiki/Finite-state_machine#Example:_coin-operated_turnstile).
+To demonstrate the library usage the following examples will implement a state machine for a coin-operated turnstile.
+[more info](https://en.wikipedia.org/wiki/Finite-state_machine#Example:_coin-operated_turnstile).
 
 #### Defining the state machine
 
@@ -17,6 +18,8 @@ Require the fsm-clj core name space.
 (:require [fsm-clj.core :refer :all])
 ```
 
+Defining the state machine with `defsm`.
+
 ```clj
 (defsm turnstile
   [[:locked -> :unlocked when :coin]
@@ -24,6 +27,8 @@ Require the fsm-clj core name space.
 ```
 
 #### Sending an event to the machine
+
+An event is the input responsible for transitions between state.
 
 ```clj
 (-> (turnstile)
@@ -55,7 +60,7 @@ we want to increment a counter.
 
 When sending an event you can pass a message that will be injected into the action handler.
 
-For example, let's say that now when a coin event is triggered we should pass the total amount with it.
+For example, let's say that when a coin transition is triggered we should pass the coin value with it:
 
 ```clj
 ;; action handler
