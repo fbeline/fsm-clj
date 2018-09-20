@@ -7,11 +7,11 @@
 (s/def ::transition
  (s/cat
   :state keyword?
-  :_ #{'->}
+  :_-> #{'->}
   :target keyword?
-  :_ #{'when}
+  :_when #{'when}
   :event keyword?
-  :opts (s/* (s/alt :action ::action ::guard ::guard))))
+  :opts (s/* (s/alt :action ::action :guard ::guard))))
 
 (defn- set-state [fsm state]
   (if ((->> fsm :transitions keys (into #{})) state)
@@ -23,15 +23,19 @@
     transition
     (throw (Exception. (str "Invalid State Machine definition: " (s/explain-str ::transition transition))))))
 
+(defmacro eval-fn [opts attr]
+  `(if (-> ~opts ~attr nil?)
+    (fn [acc# _#] acc#)
+    @(-> ~opts ~attr :handler eval resolve)))
+
 (defn- parse-fsm-transition [transition]
   (let [parsed (s/conform ::transition transition)
-        action (->> parsed :opts (into {}) :action :handler)]
+        opts   (->> parsed :opts (into {}))]
     {:state  (:state parsed)
      :target (:target parsed)
      :event  (:event parsed)
-     :action (if (nil? action)
-                (fn [acc _] acc)
-                @(-> action eval resolve))}))
+     :action (eval-fn opts :action)
+     :guard  (eval-fn opts :guard)}))
 
 (defn- build-fsm-graph [transitions]
   (map (fn [{:keys [state target event]}]

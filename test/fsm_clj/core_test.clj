@@ -5,10 +5,13 @@
 (defn inc-handler [acc message]
   (or message (inc acc)))
 
+(defn foo-guard [_ message]
+  (>= message 8000))
+
 (fsm/defsm traffic-light
   [[:green -> :yellow when :to-yellow action `inc-handler]
    [:yellow -> :red when :to-red action `inc-handler]
-   [:red -> :green when :to-green]])
+   [:red -> :green when :to-green guard `foo-guard]])
 
 (def traffic-light-fsm (traffic-light 0))
 
