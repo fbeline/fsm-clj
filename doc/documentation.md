@@ -1,4 +1,4 @@
-# fsm-clj documentation
+# fsm-clj doc
 
 State machines guarantee the behaviour to be always consistent as the rules are written before the machine is started.
 With a predefined finite number of states, your application moves from one state to the next based on the
@@ -10,7 +10,7 @@ evaluated at compile time, throwing an exception in case of any parsing issue.
 To demonstrate the library usage the following examples will implement a state machine for a coin-operated turnstile.
 [more info](https://en.wikipedia.org/wiki/Finite-state_machine#Example:_coin-operated_turnstile).
 
-#### Defining the state machine
+#### State machine definition
 
 Require the fsm-clj core name space.
 
@@ -26,9 +26,9 @@ Defining the state machine with `defsm`.
    [:unlocked -> :locked when :push]])
 ```
 
-#### Sending an event to the machine
+#### Events
 
-An event is the input responsible for transitions between state.
+An event is the input responsible for transitions between states.
 
 ```clj
 (-> (turnstile)
@@ -56,7 +56,9 @@ we want to increment a counter.
     :value) ;; => 2
 ```
 
-#### Passing values to events
+The action handler returns the new accumulator value that will be passed forward.
+
+#### Events with payload
 
 When sending an event you can pass a message that will be injected into the action handler.
 
@@ -75,5 +77,24 @@ For example, let's say that when a coin transition is triggered we should pass t
     (send-event :push)
     (send-event :coin 100)
     :value) ;; => 150
+```
+
+#### Guard
+
+Guard is a function responsible to determine if a state change should happens or not.
+
+Supposing that the minimun coin value to unlock the turnstile should be 50.
+
+```clj
+;; action handler
+(defn inc-amount [acc amount] (+ acc amount))
+
+(defsm turnstile
+  [[:locked -> :unlocked when :coin action `inc-amount]
+   [:unlocked -> :locked when :push]])
+   
+(-> (turnstile 0) ;; start the fsm with accumulator value equals 0
+    (send-event :coin 25)
+    :state) ;; => :lock
 ```
 
