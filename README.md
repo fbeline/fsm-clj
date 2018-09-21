@@ -1,4 +1,4 @@
-# fsm-clj
+# fsm-clj [![Clojars Project](https://img.shields.io/clojars/v/fsm-clj.svg)](https://clojars.org/fsm-clj)
 
 A Clojure library designed to create deterministic finite state machines.
 
@@ -8,6 +8,7 @@ A Clojure library designed to create deterministic finite state machines.
 - Graphically visualize the resulting state machines.
 
 Refer to the [documentation](doc/documentation.md) for more details.
+
 
 ## Quick Start
 
