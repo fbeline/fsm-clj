@@ -38,7 +38,7 @@
   (if (-> transition :guard (apply [(:value fsm) message]))
     (-> fsm
         (update-in [:value] #(-> transition :action (apply [% message])))
-        (assoc :state (:target transition)))
+        (set-state (:target transition)))
     fsm))
 
 (defn send-event
