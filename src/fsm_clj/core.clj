@@ -1,6 +1,5 @@
 (ns fsm-clj.core
-  (:require [dorothy.core :as dot]
-            [fsm-clj.parser :as p]))
+  (:require [fsm-clj.parser :as p]))
 
 (defn- set-state [fsm state]
   (if ((->> fsm :transitions keys (into #{})) state)
@@ -63,4 +62,4 @@
 (defn show!
   "Graphically generate the State Machine (open a Swing viewer)."
   [fsm]
-  (-> fsm :graph dot/digraph dot/dot dot/show!))
+  (-> fsm :graph dorothy.core/digraph dorothy.core/dot dorothy.core/show!))
