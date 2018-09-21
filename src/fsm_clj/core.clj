@@ -5,13 +5,13 @@
 (s/def ::action (s/cat :_ #{'action} :handler any?))
 (s/def ::guard (s/cat :_ #{'guard} :handler any?))
 (s/def ::transition
- (s/cat
-  :state keyword?
-  :_-> #{'->}
-  :target keyword?
-  :_when #{'when}
-  :event keyword?
-  :opts (s/* (s/alt :action ::action :guard ::guard))))
+  (s/cat
+   :state keyword?
+   :_-> #{'->}
+   :target keyword?
+   :_when #{'when}
+   :event keyword?
+   :opts (s/* (s/alt :action ::action :guard ::guard))))
 
 (defn- set-state [fsm state]
   (if ((->> fsm :transitions keys (into #{})) state)
@@ -25,8 +25,8 @@
 
 (defmacro eval-fn [opts attr]
   `(if (-> ~opts ~attr nil?)
-    (fn [acc# _#] (if (= ~attr :guard) true acc#))
-    @(-> ~opts ~attr :handler eval resolve)))
+     (fn [acc# _#] (if (= ~attr :guard) true acc#))
+     @(-> ~opts ~attr :handler eval resolve)))
 
 (defn- parse-fsm-transition [transition]
   (let [parsed (s/conform ::transition transition)

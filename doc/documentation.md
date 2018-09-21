@@ -81,7 +81,7 @@ For example, let's say that when a coin transition is triggered we should pass t
 
 #### Guard
 
-Guard is a function responsible to determine if a state should change or not.
+Guard is responsible to determine if a state should change or not.
 
 Supposing that the minimum coin value to unlock the turnstile should be 50.
 
@@ -90,7 +90,7 @@ Supposing that the minimum coin value to unlock the turnstile should be 50.
 (defn inc-amount [acc amount] (+ acc amount))
 
 (defn guard-handler [_state amount]
-  (when (>= amount 50)))
+  (>= amount 50))
 
 (defsm turnstile
   [[:locked -> :unlocked when :coin action `inc-amount guard `guard-handler]
@@ -101,5 +101,5 @@ Supposing that the minimum coin value to unlock the turnstile should be 50.
     :state) ;; => :lock
 ```
 
-The guard handler must be a function with two parameters, being the first the current state and the second the message
+The guard handler must be a function with two parameters, being the first the accumulator and the second the message
 sent by `send-event`.
