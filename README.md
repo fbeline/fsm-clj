@@ -1,4 +1,6 @@
-# fsm-clj [![Clojars Project](https://img.shields.io/clojars/v/fsm-clj.svg)](https://clojars.org/fsm-clj)
+# fsm-clj
+
+[![Clojars Project](https://img.shields.io/clojars/v/fsm-clj.svg)](https://clojars.org/fsm-clj)
 
 A Clojure library designed to create deterministic finite state machines.
 
