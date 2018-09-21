@@ -6,7 +6,7 @@
   (or message (inc acc)))
 
 (defn foo-guard [_ message]
-  (>= message 8000))
+  (>= message 10))
 
 (fsm/defsm traffic-light
   [[:green -> :yellow when :to-yellow action `inc-handler]
@@ -19,11 +19,11 @@
   (testing "By default first transition state is the start state"
     (is (-> (traffic-light) :state (= :green))))
 
-  (testing "We can set an accumulator at fsm creation"
+  (testing "We can set an accumulator at fsm start"
     (let [fsm (traffic-light 10)]
       (is (-> fsm :value (= 10)))))
 
-  (testing "We can set initial state at fsm creation"
+  (testing "We can set initial state at fsm start"
     (let [fsm (traffic-light 0 :red)]
       (is (-> fsm :state (= :red)))))
 
@@ -51,8 +51,11 @@
             :value
             (= -1))))
 
-  (testing "Is ok to have no action defined"
-    (is (-> (traffic-light 0 :red)
-            (fsm/send-event :to-green)
-            :value
-            (= 0)))))
+  (testing "Guard is executed before action and prevent the state to change"
+    (is (-> traffic-light-fsm
+            (fsm/send-event :to-yellow)
+            (fsm/send-event :to-red)
+            (fsm/send-event :to-green 8)
+            :state
+            (= :red)))))
+

@@ -25,7 +25,7 @@
 
 (defmacro eval-fn [opts attr]
   `(if (-> ~opts ~attr nil?)
-    (fn [acc# _#] acc#)
+    (fn [acc# _#] (if (= ~attr :guard) true acc#))
     @(-> ~opts ~attr :handler eval resolve)))
 
 (defn- parse-fsm-transition [transition]
@@ -59,7 +59,7 @@
 
 (defmacro defsm
   "Define a State Machine.
-  eg.
+  e.g.
   (defsm foo
     [[:state1 -> :state2 when :event1]
      [:state2 -> state1 when :event2]])
@@ -84,6 +84,13 @@
                      (assoc :value acc#)
                      (#'set-state initial-state#))))))
 
+(defn- on-transition-triggered [fsm transition message]
+  (if (-> transition :guard (apply [(:value fsm) message]))
+    (-> fsm
+        (update-in [:value] #(-> transition :action (apply [% message])))
+        (assoc :state (:target transition)))
+    fsm))
+
 (defn send-event
   ([fsm event]
    "Send an event to a state machine.
@@ -97,13 +104,10 @@
    - fsm: State machine
    - event: Event name. Must be a symbol.
    - message: Message that will passed as argument to the action of the triggered transition."
-   (let [state   (:state fsm)
-         event   (-> fsm :transitions state event)
-         handler (:action event)]
-     (if event
-       (-> fsm
-           (update-in [:value] #(handler % message))
-           (assoc :state (:target event)))
+   (let [state      (:state fsm)
+         transition (-> fsm :transitions state event)]
+     (if transition
+       (on-transition-triggered fsm transition message)
        fsm))))
 
 (defn show!
