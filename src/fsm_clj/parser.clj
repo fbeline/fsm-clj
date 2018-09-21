@@ -18,16 +18,15 @@
     (throw (Exception. (str "Invalid State Machine definition: " (s/explain-str ::transition transition))))))
 
 (defmacro eval-fn [opts attr]
-  `(if (-> ~opts ~attr nil?)
-     (fn [acc# _#] (if (= ~attr :guard) true acc#))
-     @(-> ~opts ~attr :handler eval resolve)))
+  `(if-let [v# (->> ~opts (into {}) ~attr)]
+     @(-> v# :handler eval resolve)
+     (fn [acc# _#] (if (= ~attr :guard) true acc#))))
 
 (defn- parse-fsm-transition [transition]
-    (let [parsed (s/conform ::transition transition)
-          opts   (->> parsed :opts (into {}))]
-    {:state  (:state parsed)
-     :target (:target parsed)
-     :event  (:event parsed)
+    (let [{:keys [state target event opts]} (s/conform ::transition transition)]
+    {:state  state
+     :target target
+     :event  event
      :action (eval-fn opts :action)
      :guard  (eval-fn opts :guard)}))
 
